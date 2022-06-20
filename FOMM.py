@@ -69,7 +69,7 @@ class FOMM:
         Parameters:
             List: (data) A list of temporally related symbols (w1 -> w2), where w2 occurs after w1.
         """
-        self.__data = data
+        self.__data = [str(x) for x in data]
         self.__theta = self.init_transition_model()
         self.__sub_counts = self.init_transition_model()
         self.__histogram = self.init_hist()

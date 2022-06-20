@@ -3,11 +3,7 @@ from FOMM import *
 
 def main():
     # INITIAL PARAMETERS
-    state1 = "1"
-    state2 = "2"
-    state3 = "3"
-    state4 = "4"
-    w = [state1, state2, state1, state2, state1, state1, state3, state4]
+    w = ["one", "1", "2", "one", "three", "3", 3, "4", "1", "hello", "!", "!", "!"]
 
     clf = FOMM()
     clf.fit(w)

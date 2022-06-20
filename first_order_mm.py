@@ -9,13 +9,11 @@ def main():
     state4 = "4"
     w = [state1, state2, state1, state2, state1, state1, state3, state4]
 
-    clf = FOMM(w)
-    print(f"Freq: {clf.get_freq()}")
-    print(f"Hist: {clf.get_hist()}")
-    print(f"\u03B8: {clf.get_init_model()}")
-
-    clf.fit()
-    print(f" Fitted \u03B8: {clf.get_theta()}")
-
+    clf = FOMM()
+    clf.fit(w)
+    clf.print_content()
+    print(clf.classify("ajshdgfkugsdugls","4"))
+    print(clf.classify("1","4"))
+    print(clf.classify("1","2"))
 if __name__ == "__main__":
     main()

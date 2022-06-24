@@ -12,7 +12,7 @@ Returns:
 
 class FOMM:
     def __init__(self):
-        self.__data = {} # A temporally oriented list of size T: [w(1), w(2), ..., w(T)].
+        self.__data = [] # A temporally oriented list of size T: [w(1), w(2), ..., w(T)].
         self.__theta = {} # A model of the transition probabilities for the states: P(wj(t+1) | wi(t)).
         self.__sub_counts = {} # A count of how many times one state follows another {state1 : {state1: 1, ..., stateT: x}, state2: ...}.
         self.__histogram = {} # The number of occurences of each state [state : n_occurrences].

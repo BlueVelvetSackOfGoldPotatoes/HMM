@@ -1,6 +1,7 @@
 import copy
 import networkx as nx
 import numpy as np
+import re
 from networkx.drawing.nx_agraph import to_agraph 
 
 """ A First Order Markov Model, where w(t) is the state at any time t, a sequence of length T is denoted by W^T = {w(1), w(2), w(3), ..., w(T)}. Transition probability: P(wj(t+1) | wi(t)) = aij -> this is the probability of having state wj at step t+1 given that the state at time t was wi.
@@ -21,13 +22,17 @@ class FOMM:
         self.__histogram = {} # The number of occurences of each state [state : n_occurrences].
         self.__frequency = {} # The probability of each state in the set {state1:50%, state2:20%, ...}.
 
-    def fit(self, data):
+    def fit(self, data, words=None):
         """Fit the first order markov model on data. Initializes all the object parameters from the data.
 
         Parameters:
             List: (data) A list of temporally related symbols (w1 -> w2), where w2 occurs after w1.
         """
-        self.__data = [str(x) for x in data]
+        if words:
+            self.__data = re.split(r'(\s+)', data)
+        else:
+            self.__data = [str(x) for x in data]
+
         self.__theta = self.init_transition_model()
         self.__sub_counts = self.init_transition_model()
         self.__histogram = self.init_hist()
@@ -109,6 +114,25 @@ class FOMM:
             return 0.0
     
     # GETTERS ---------- --------------------- ---------- V
+    def get_graph(self, filename):
+        """Builds the graph for the HMM
+        Parameters:
+            Variable: (filename) - this is the name given to the output image file with the generated graph.
+        """
+        G=nx.MultiDiGraph(self.__theta)
+
+        G.graph['edge'] = {'arrowsize': '0.6'}
+        G.graph['graph'] = {'scale': '3'}
+                                                                                                    
+        # G[1][1][0]['color']='red'
+                                                                                        
+        A = to_agraph(G)
+        A.layout('dot')
+        # For this to work, the object can't be of type pygraphviz which is returned from agraph - needs to be something different, don't know which yet.
+        # colors = list(np.random.choice(range(256), size=len(dic)))                                                     
+        # A.draw_networkx_edges(edge_color=colors, label=dic.values(), save='multi.png') 
+        A.draw(filename + '.png')
+
     def print_theta(self,dic):
         """Prints the transition probability model dictionary or Theta.
 
@@ -121,20 +145,6 @@ class FOMM:
             print("######################")
             for subkey, subvalue in zip(value.keys(), value.values()):
                 print(f"P({subkey} | {key}) = {subvalue})\n")
-    
-        G=nx.MultiDiGraph(dic)
-
-        G.graph['edge'] = {'arrowsize': '0.6'}
-        G.graph['graph'] = {'scale': '3'}
-                                                                                                    
-        # G[1][1][0]['color']='red'
-                                                                                        
-        A = to_agraph(G)
-        A.layout('dot')
-        # For this to work, the object can't be a agraph - needs to be something different, don't know which yet.
-        # colors = list(np.random.choice(range(256), size=len(dic)))                                                     
-        # A.draw_networkx_edges(edge_color=colors, label=dic.values(), save='multi.png') 
-        A.draw('graph.png')
 
     def get_data(self):
         """Returns the data used to fit the model.

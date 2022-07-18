@@ -18,6 +18,30 @@ class FOMM:
         self.__histogram = {} # The number of occurences of each state [state : n_occurrences].
         self.__frequency = {} # The probability of each state in the set {state1:50%, state2:20%, ...}.
 
+    def fit(self, data):
+        """Fit the first order markov model on data. Initializes all the object parameters from the data.
+
+        Parameters:
+            List: (data) A list of temporally related symbols (w1 -> w2), where w2 occurs after w1.
+        """
+        self.__data = [str(x) for x in data]
+        self.__theta = self.init_transition_model()
+        self.__sub_counts = self.init_transition_model()
+        self.__histogram = self.init_hist()
+        self.__frequency = self.calculate_freq()
+
+        for ele in self.__theta:
+            for i in range(1,len(self.__data)):
+                if self.__data[i-1] != ele:
+                    continue
+                else:
+                    self.__theta[ele][self.__data[i]] += 1
+        self.__sub_counts = copy.deepcopy(self.__theta)
+
+        for ele in self.__theta:
+            for other_state in self.__theta[ele]:
+                self.__theta[ele][other_state] = round(self.__theta[ele][other_state] / (len(self.__data)-1) * 100, 2)
+    
     def init_transition_model(self):
         """Initialize the empty dictionary that saves the transition probability model.
 
@@ -63,31 +87,8 @@ class FOMM:
 
         return w_freq
 
-    def fit(self, data):
-        """Fit the first order markov model on data. Initializes all the object parameters from the data.
 
-        Parameters:
-            List: (data) A list of temporally related symbols (w1 -> w2), where w2 occurs after w1.
-        """
-        self.__data = [str(x) for x in data]
-        self.__theta = self.init_transition_model()
-        self.__sub_counts = self.init_transition_model()
-        self.__histogram = self.init_hist()
-        self.__frequency = self.calculate_freq()
-
-        for ele in self.__theta:
-            for i in range(1,len(self.__data)):
-                if self.__data[i-1] != ele:
-                    continue
-                else:
-                    self.__theta[ele][self.__data[i]] += 1
-        self.__sub_counts = copy.deepcopy(self.__theta)
-
-        for ele in self.__theta:
-            for other_state in self.__theta[ele]:
-                self.__theta[ele][other_state] = round(self.__theta[ele][other_state] / (len(self.__data)-1) * 100, 2)
-
-    def classify(self, currentState, nextState):
+    def classify(self, currentState, nextState=None):
         """Finds the transition probability of the given states in some fitted model theta.
 
         Parameters:
@@ -97,8 +98,9 @@ class FOMM:
         Returns:
             Float: In the case of these existing in the model, returns the transition probability for the given states, else returns 0.0 - to be interpreted as the probability of 0, since the transitional states was never seen before by the MM.
         """
-        
-        if str(currentState) in self.__theta and str(nextState) in self.__theta[str(currentState)]:
+        if nextState==None:
+            return self.__frequency[currentState]
+        elif str(currentState) in self.__theta and str(nextState) in self.__theta[str(currentState)]:
             return self.__theta[str(currentState)][str(nextState)]
         else:
             return 0.0

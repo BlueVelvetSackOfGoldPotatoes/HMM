@@ -9,7 +9,7 @@ def main():
     clf.fit(w)
     clf.print_content()
     print(clf.classify(" "))
-    # print(clf.classify("C","A"))
+    print(clf.classify("C","A"))
 
 if __name__ == "__main__":
     main()

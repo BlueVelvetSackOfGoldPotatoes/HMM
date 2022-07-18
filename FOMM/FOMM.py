@@ -1,4 +1,7 @@
 import copy
+import networkx as nx
+import numpy as np
+from networkx.drawing.nx_agraph import to_agraph 
 
 """ A First Order Markov Model, where w(t) is the state at any time t, a sequence of length T is denoted by W^T = {w(1), w(2), w(3), ..., w(T)}. Transition probability: P(wj(t+1) | wi(t)) = aij -> this is the probability of having state wj at step t+1 given that the state at time t was wi.
 
@@ -119,6 +122,20 @@ class FOMM:
             for subkey, subvalue in zip(value.keys(), value.values()):
                 print(f"P({subkey} | {key}) = {subvalue})\n")
     
+        G=nx.MultiDiGraph(dic)
+
+        G.graph['edge'] = {'arrowsize': '0.6'}
+        G.graph['graph'] = {'scale': '3'}
+                                                                                                    
+        # G[1][1][0]['color']='red'
+                                                                                        
+        A = to_agraph(G)
+        A.layout('dot')
+        # For this to work, the object can't be a agraph - needs to be something different, don't know which yet.
+        # colors = list(np.random.choice(range(256), size=len(dic)))                                                     
+        # A.draw_networkx_edges(edge_color=colors, label=dic.values(), save='multi.png') 
+        A.draw('graph.png')
+
     def get_data(self):
         """Returns the data used to fit the model.
 

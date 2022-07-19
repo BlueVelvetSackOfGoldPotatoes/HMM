@@ -119,27 +119,37 @@ class FOMM:
         Parameters:
             Variable: (filename) - this is the name given to the output image file with the generated graph.
         """
+        # G=pgv.AGraph()
+        # ndlist = [1,2,3]
+        # for node in ndlist:
+        #     label = "Label #" + str(node)
+        #     G.add_node(node, label=label)
+        # G.layout()
+        # G.draw('example.png', format='png')
+
         G=nx.MultiDiGraph(self.__theta)
 
         G.graph['edge'] = {'arrowsize': '0.6'}
         G.graph['graph'] = {'scale': '3'}
-                                                                                                    
+        G.add_edges_from()                                                                                      
         # G[1][1][0]['color']='red'
                                                                                         
         A = to_agraph(G)
+        
+
         A.layout('dot')
         # For this to work, the object can't be of type pygraphviz which is returned from agraph - needs to be something different, don't know which yet.
         # colors = list(np.random.choice(range(256), size=len(dic)))                                                     
         # A.draw_networkx_edges(edge_color=colors, label=dic.values(), save='multi.png') 
         A.draw(filename + '.png')
 
-    def print_theta(self,dic):
+    def print_theta(self):
         """Prints the transition probability model dictionary or Theta.
 
         Parameters:
             Dictionary: A dictionary with sub dictionaries.
         """
-        for key, value in zip(dic.keys(), dic.values()):
+        for key, value in zip(dic.keys(), self.__dic.values()):
             print("######################")
             print(f"Current state: {key}")
             print("######################")
@@ -194,7 +204,7 @@ class FOMM:
         print("~"*50)
         print("~"*50)
         print(f" Fitted \u03B8: \n")
-        self.print_theta(self.__theta)
+        self.print_theta()
         print("~"*50)
         print("~"*50)
         print(f"Freq: \n{self.__frequency}")

@@ -2,6 +2,14 @@
 from FOMM import *
 
 def deploy_HMM(data, filename, words=0):
+    """Create the classifier and return the fitted classifier.
+
+    PARAMETERS:
+        Variable: (data) -> the data to fit the HMM on.
+        Variable: (filename) -> the filename to save the graph under.
+        Variable: (words) -> the flag for fitting on the characters (0) or the whole symbols (1) of a string.
+    """
+
     clf = FOMM()
     if words:
         clf.fit(data, 1)
@@ -15,8 +23,8 @@ def deploy_HMM(data, filename, words=0):
 # TODO write a meta-HMM for the text that is built on the word and not character.
 
 def main():
-    d1 = "Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv ! Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv ! Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv Lisa is very beautiful and smart! And Peter and Mary and wtv !"
-    
+    d1 = "Lisa is very pretty."
+
     clf1 = deploy_HMM(d1, "words", 1)
     clf2 = deploy_HMM(d1, "characters")
 

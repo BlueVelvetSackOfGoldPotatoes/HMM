@@ -129,7 +129,7 @@ class FOMM:
         # G.layout()
         # G.draw('example.png', format='png')
 
-        # G=nx.MultiDiGraph(self.__theta)
+        G_simple=pgv.AGraph(self.__theta, strict=False, directed=True)
         get_colors = lambda n: list(map(lambda i: "#" + "%06x" % random.randint(0, 0xFFFFFF),range(n)))
         colors = get_colors(len(self.__data)**2)
 
@@ -140,7 +140,8 @@ class FOMM:
             G.add_node(key)
             for subkey, subvalue in zip(value.keys(), value.values()):
                 G.add_node(subkey)
-                G.add_edge(key, subkey, color=colors[i])
+                G.add_edge(key, subkey, color=colors[i], label=str(subvalue) + "%", fontcolor=colors[i])
+
                 i += 1
                 # edge_to_label = G.get_edge(subkey, key)
                 # edge_to_label.atrr["color"] = "blue"
@@ -148,10 +149,12 @@ class FOMM:
         # G[1][1][0]['color']='red'
                                                                                         
         G.layout('dot')
+        G_simple.layout('dot')
         # For this to work, the object can't be of type pygraphviz which is returned from agraph - needs to be something different, don't know which yet.
         # colors = list(np.random.choice(range(256), size=len(dic)))                                                     
         # A.draw_networkx_edges(edge_color=colors, label=dic.values(), save='multi.png') 
         G.draw(filename + '.png')
+        G_simple.draw(filename + '_simple.png')
 
     def print_theta(self):
         """Prints the transition probability model dictionary or Theta.

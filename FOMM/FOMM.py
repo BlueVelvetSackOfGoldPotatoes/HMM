@@ -129,7 +129,7 @@ class FOMM:
         # G.layout()
         # G.draw('example.png', format='png')
 
-        G_simple=pgv.AGraph(self.__theta, strict=False, directed=True)
+        G_simple=pgv.AGraph(strict=False, directed=True)
         get_colors = lambda n: list(map(lambda i: "#" + "%06x" % random.randint(0, 0xFFFFFF),range(n)))
         colors = get_colors(len(self.__data)**2)
 
@@ -137,11 +137,9 @@ class FOMM:
 
         i = 0
         for key, value in zip(self.__theta.keys(), self.__theta.values()):
-            G.add_node(key)
             for subkey, subvalue in zip(value.keys(), value.values()):
-                G.add_node(subkey)
                 G.add_edge(key, subkey, color=colors[i], label=str(subvalue) + "%", fontcolor=colors[i])
-
+                G_simple.add_edge(key, subkey, label=str(subvalue))
                 i += 1
                 # edge_to_label = G.get_edge(subkey, key)
                 # edge_to_label.atrr["color"] = "blue"

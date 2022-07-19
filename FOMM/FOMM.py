@@ -1,8 +1,10 @@
 import copy
-import networkx as nx
 import numpy as np
 import re
-from networkx.drawing.nx_agraph import to_agraph 
+import pygraphviz as pgv
+import random
+# import networkx as nx
+# from networkx.drawing.nx_agraph import to_agraph 
 
 """ A First Order Markov Model, where w(t) is the state at any time t, a sequence of length T is denoted by W^T = {w(1), w(2), w(3), ..., w(T)}. Transition probability: P(wj(t+1) | wi(t)) = aij -> this is the probability of having state wj at step t+1 given that the state at time t was wi.
 
@@ -49,7 +51,7 @@ class FOMM:
         for ele in self.__theta:
             for other_state in self.__theta[ele]:
                 self.__theta[ele][other_state] = round(self.__theta[ele][other_state] / (len(self.__data)-1) * 100, 2)
-    
+
     def init_transition_model(self):
         """Initialize the empty dictionary that saves the transition probability model.
 
@@ -127,21 +129,29 @@ class FOMM:
         # G.layout()
         # G.draw('example.png', format='png')
 
-        G=nx.MultiDiGraph(self.__theta)
+        # G=nx.MultiDiGraph(self.__theta)
+        get_colors = lambda n: list(map(lambda i: "#" + "%06x" % random.randint(0, 0xFFFFFF),range(n)))
+        colors = get_colors(len(self.__data)**2)
 
-        G.graph['edge'] = {'arrowsize': '0.6'}
-        G.graph['graph'] = {'scale': '3'}
-        G.add_edges_from()                                                                                      
+        G = pgv.AGraph(strict=False, directed=True)
+
+        i = 0
+        for key, value in zip(self.__theta.keys(), self.__theta.values()):
+            G.add_node(key)
+            for subkey, subvalue in zip(value.keys(), value.values()):
+                G.add_node(subkey)
+                G.add_edge(key, subkey, color=colors[i])
+                i += 1
+                # edge_to_label = G.get_edge(subkey, key)
+                # edge_to_label.atrr["color"] = "blue"
+
         # G[1][1][0]['color']='red'
                                                                                         
-        A = to_agraph(G)
-        
-
-        A.layout('dot')
+        G.layout('dot')
         # For this to work, the object can't be of type pygraphviz which is returned from agraph - needs to be something different, don't know which yet.
         # colors = list(np.random.choice(range(256), size=len(dic)))                                                     
         # A.draw_networkx_edges(edge_color=colors, label=dic.values(), save='multi.png') 
-        A.draw(filename + '.png')
+        G.draw(filename + '.png')
 
     def print_theta(self):
         """Prints the transition probability model dictionary or Theta.
@@ -149,7 +159,7 @@ class FOMM:
         Parameters:
             Dictionary: A dictionary with sub dictionaries.
         """
-        for key, value in zip(dic.keys(), self.__dic.values()):
+        for key, value in zip(self.__theta.keys(), self.__theta.values()):
             print("######################")
             print(f"Current state: {key}")
             print("######################")

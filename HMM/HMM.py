@@ -6,43 +6,42 @@ import random
 # import networkx as nx
 # from networkx.drawing.nx_agraph import to_agraph 
 
-""" A First Order Markov Model, where w(t) is the state at any time t, a sequence of length T is denoted by W^T = {w(1), w(2), w(3), ..., w(T)}. Transition probability: P(wj(t+1) | wi(t)) = aij -> this is the probability of having state wj at step t+1 given that the state at time t was wi.
+""" A Hidden Markov Model, where w(t) are the hidden states at any time t, v(t) are the emitted or visible states, a sequence of length T is denoted by W^T = {w(1), w(2), w(3), ..., w(T)}. Transition probability: P(wj(t+1) | wi(t)) = aij -> this is the probability of having state wj at step t+1 given that the state at time t was wi.
+Transition probability of visible emissions: P(vk(t)|wj(T)) = bjk 
 
 Note that,
-    (1) FOMM are not strictly symmetric: aij != aji;
+    (1) HMM are not strictly symmetric: aij != aji;
     (2) The next state might be the current state: aii != 0;
 
 Returns:
-    FOMM: A First Order Markov Model object, capable of fitting a list of temporally related symbols and classifying the probability of a state following another state.
+    HMM: A Hidden Markov Model object, capable of fitting a list of temporally related symbols and classifying the probability of a state following another state from the visible emissions.
 """
 
-class FOMM:
+class HMM:
     def __init__(self):
-        self.__data = [] # A temporally oriented list of size T: [w(1), w(2), ..., w(T)].
+        self.__hidden_states = [] # A temporally oriented list of size T: [w(1), w(2), ..., w(T)].
+        self.__visible_states # A temporally oriented list of size T: [v(1), v(2), ..., v(T)].
         self.__theta = {} # A model of the transition probabilities for the states: P(wj(t+1) | wi(t)).
         self.__sub_counts = {} # A count of how many times one state follows another {state1 : {state1: 1, ..., stateT: x}, state2: ...}.
         self.__histogram = {} # The number of occurences of each state [state : n_occurrences].
         self.__frequency = {} # The probability of each state in the set {state1:50%, state2:20%, ...}.
 
-    def fit(self, data, words=None):
+    def fit(self, data):
         """Fit the first order markov model on data. Initializes all the object parameters from the data.
 
         Parameters:
             List: (data) A list of temporally related symbols (w1 -> w2), where w2 occurs after w1.
         """
-        if words:
-            self.__data = re.split(r'(\s+)', data)
-        else:
-            self.__data = [str(x) for x in data]
-
+        self.__hidden_states = re.split(r'(\s+)', data)
+        self.__visible_states = [str(x) for x in data]
         self.__theta = self.init_transition_model()
         self.__sub_counts = self.init_transition_model()
         self.__histogram = self.init_hist()
         self.__frequency = self.calculate_freq()
 
         for ele in self.__theta:
-            for i in range(1,len(self.__data)):
-                if self.__data[i-1] != ele:
+            for i in range(1,len(self.__visible_states)):
+                if self.__visible_states[i-1] != ele:
                     continue
                 else:
                     self.__theta[ele][self.__data[i]] += 1
@@ -60,10 +59,10 @@ class FOMM:
         """
         theta = {}
 
-        for ele in self.__data:
+        for ele in self.__visible_states:
             theta[ele] = {}
-            for i in range(len(self.__data)):
-                theta[ele][self.__data[i]] = 0
+            for i in range(len(self.__visible_states)):
+                theta[ele][self.__visible_states[i]] = 0
                 
         return theta
 
@@ -74,12 +73,12 @@ class FOMM:
             Dictionary: (elements_hist) The frequency where each key represents the state and its value entry is the number of times it occurs in the set.
         """
         elements_hist = {}
-        for ele in self.__data:
+        for ele in self.__visible_states:
             if ele not in elements_hist:
                 elements_hist[ele] = 0
             else:
                 continue
-            for comp in self.__data:
+            for comp in self.__visible_states:
                 if comp == ele:
                     elements_hist[ele] += 1
 
@@ -93,7 +92,7 @@ class FOMM:
         """
         w_freq = {}
         for ele in self.__histogram:
-            w_freq[ele] = self.__histogram[ele]/len(self.__data) * 100
+            w_freq[ele] = self.__histogram[ele]/len(self.__visible_states) * 100
 
         return w_freq
 
@@ -123,7 +122,7 @@ class FOMM:
         """
         G_simple=pgv.AGraph(strict=False, directed=True)
         get_colors = lambda n: list(map(lambda i: "#" + "%06x" % random.randint(0, 0xFFFFFF),range(n)))
-        colors = get_colors(len(self.__data)**2)
+        colors = get_colors(len(self.__visible_states)**2)
 
         G = pgv.AGraph(strict=False, directed=True)
 
@@ -133,8 +132,7 @@ class FOMM:
                 G.add_edge(key, subkey, color=colors[i], label=str(subvalue) + "%", fontcolor=colors[i])
                 G_simple.add_edge(key, subkey, label=str(subvalue))
                 i += 1
-
-                                                                                        
+                                                                            
         G.layout('dot')
         G_simple.layout('dot')
         G.draw(filename + '.png')
@@ -153,13 +151,21 @@ class FOMM:
             for subkey, subvalue in zip(value.keys(), value.values()):
                 print(f"P({subkey} | {key}) = {subvalue})\n")
 
-    def get_data(self):
-        """Returns the data used to fit the model.
+    def get_visible_states(self):
+        """Returns the visible states used to fit the model.
 
         Parameters:
-            List: (__data) A list with the transition states used to fit the model.
+            List: (__visible_states) A list with the transition states.
         """
-        return self.__data
+        return self.__visible_states
+
+    def get_hidden_states(self):
+        """Returns the hidden states used to fit the model.
+
+        Parameters:
+            List: (__hidden_states) A list with the emitted states used to fit the model.
+        """
+        return self.__hidden_states
 
     def get_sub_counts(self):
         """Returns the  of each state in the data.
@@ -197,7 +203,10 @@ class FOMM:
         """Prints all the relevant parameters of the model.
         """
         print("~"*50)
-        print(f"Data: \n{self.__data}")
+        print(f"Data (Visible States): \n{self.__visible_states}")
+        print("~"*50)
+        print("~"*50)
+        print(f"Data (Hidden States): \n{self.__hidden_states}")
         print("~"*50)
         print("~"*50)
         print(f" Fitted \u03B8: \n")
